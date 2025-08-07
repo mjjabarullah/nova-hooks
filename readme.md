@@ -23,4 +23,14 @@ yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
 ```
 
 ```bash
-npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git 
+npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
+
+## 📦 Exports
+| Name              | Type                                                  | Description                                                          |
+| ----------------- | ----------------------------------------------------- | -------------------------------------------------------------------- |
+| `ActionType`      | `object`                                              | Predefined enum-like values: `"Button"`, `"Menu"`, `"Login"`         |
+| `PageVisitAction` | `string`                                              | Constant string `"Page Visit"` used for tracking page visits         |
+| `setProjectName`  | `(name: string) => void`                              | Sets the global project name used in emitted events                  |
+| `withEvent`       | `(eventData: EventData, callback?: Function) => void` | Emits a structured event optionally after running a callback         |
+| `EventData`       | `type` (union of two objects)                         | Type definition for tracking click events or page visits (see below) |
+
