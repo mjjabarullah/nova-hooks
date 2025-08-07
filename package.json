@@ -1,0 +1,38 @@
+{
+  "name": "nova-hooks",
+  "version": "1.0.0",
+  "description": "Nova hooks package",
+  "keywords": [
+    "nova",
+    "hooks"
+  ],
+  "homepage": "https://github.com/mjjabarullah/nova-hooks#readme",
+  "bugs": {
+    "url": "https://github.com/mjjabarullah/nova-hooks/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mjjabarullah/nova-hooks.git"
+  },
+  "license": "ISC",
+  "author": "Mohamed Jabarullah",
+  "type": "commonjs",
+  "main": "index.js",
+  "peerDependencies": {
+    "react": "^18.3.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "events": "^3.3.0",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/events": "^3.0.3",
+    "@types/node": "^24.0.13",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "typescript": "~5.8.3"
+  }
+}
