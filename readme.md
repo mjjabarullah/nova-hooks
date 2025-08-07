@@ -24,6 +24,7 @@ yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
 
 ```bash
 npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
+```
 
 ## 📦 Exports
 | Name              | Type                                                  | Description                                                          |
