@@ -19,4 +19,5 @@ A lightweight event tracking utility for capturing user interactions (such as bu
 ### 1. Install
 
 ```bash
-yarn add nova-hooks
+yarn add git+https://github.com/mjjabarullah/nova-hooks.git
+npm i git+https://github.com/mjjabarullah/nova-hooks.git 
