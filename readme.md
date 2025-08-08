@@ -27,6 +27,7 @@ npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
 ```
 
 ### Usage with `useGlobalClickTracker` hook
+
 If you want to track the click event after login. use useGlobalClickTracker hook
 Click event tracking ensures we capture user interactions within authenticated areas, helping analyze feature usage and behavior.
 
@@ -35,18 +36,19 @@ import { useGlobalClickTracker } from "nova-hooks";
 
 const Protected = ({ children }: PropsWithChildren) => {
   const { isAuthenticated, user } = useAuth();
-  // this hook tracks all the UI click 
+  // this hook tracks all the UI click
   useGlobalClickTracker(
     import.meta.env.VITE_APP_SOCKET,
     "WolfPack",
     user?.empId,
-    user?.roleId,
+    user?.roleId
   );
 
   return isAuthenticated ? children : <Navigate to={RouteName.LOGIN} />;
 };
 ```
-add data-nova-track-id, data-nova-track-type attributes in UI elements to track click event internally. 
+
+add data-nova-track-id, data-nova-track-type attributes in UI elements to track click event internally.
 
 ```tsx
 <Button
@@ -62,22 +64,23 @@ add data-nova-track-id, data-nova-track-type attributes in UI elements to track 
   </span>
 </Button>
 ```
-### Usage with `withEvent` , `connectSocket` methods 
+
+### Usage with `withEvent` , `connectSocket` methods
+
 Or Would like to track explicit click event or somewhere, We need to use withEvent method
+
 > [!IMPORTANT]
 > Ensure socket connection established in react hook by using connectSocket method.
 
 ```tsx
 const Login = () => {
-
-  // Add this if you don't want to use useGlobalClickTracker hook 
   useEffect(() => {
     connectSocket(import.meta.env.VITE_APP_SOCKET, "WolfPack");
   }, []);
 
   const [_, setToken] = useSessionStorage<string | undefined>(
     Auth.SESSION,
-    undefined,
+    undefined
   );
 
   const { mutate: doLogin, isPending } = useMutation({
@@ -161,7 +164,7 @@ const Login = () => {
             withEvent({
               Action: ActionType.Login,
               ActionType: ActionType.Login,
-              EmpId: form.getValues("employeeId").toUpperCase(),
+              EmpId: form.getValues("employeeId"),
               EmpRole: "",
               Count: 1,
             })
@@ -174,30 +177,30 @@ const Login = () => {
     </Form>
   );
 };
-
 ```
 
 ## 📦 Exports
-| Name              | Type                                                  | Description                                                          |
-| ----------------- | ----------------------------------------------------- | -------------------------------------------------------------------- |
-| `ActionType`      | `object`                                              | Predefined enum-like values: `"Button"`, `"Menu"`, `"Login"`         |
-| `PageVisitAction` | `string`                                              | Constant string `"Page Visit"` used for tracking page visits         |
-| `setProjectName`  | `(name: string) => void`                              | Sets the global project name used in emitted events                  |
-| `withEvent`       | `(eventData: EventData, callback?: Function) => void` | Emits a structured event optionally after running a callback         |
-| `EventData`       | `type` (union of two objects)                         | Type definition for tracking click events or page visits (see below) |
-| `useGlobalClickTracker`| `(socketUrl: string, projectName: string, empId?: string, roleId?: string) => void` | React hook to track global click events and emit them to the server via socket. |
-| `usePageTimeTracker`   | `(params: { Action: string; EmpId?: string; EmpRole?: string }) => void` | React hook to track time spent on a page and emit an event on unmount if duration exceeds threshold. |
-| `PageTimeTrackingData` | `type` | Type definition for the parameters accepted by `usePageTimeTracker`.|
-| `socket`        | `ReturnType<typeof io>`                                   | Socket.IO client instance used for real-time event communication.          |
-| `connectSocket` | `(socketUrl: string, projectName: string) => void`        | Connects to the socket server, sets the project name, and attaches connection/disconnection listeners. |
+
+| Name                    | Type                                                                                | Description                                                                                            |
+| ----------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `ActionType`            | `object`                                                                            | Predefined enum-like values: `"Button"`, `"Menu"`, `"Login"`                                           |
+| `PageVisitAction`       | `string`                                                                            | Constant string `"Page Visit"` used for tracking page visits                                           |
+| `setProjectName`        | `(name: string) => void`                                                            | Sets the global project name used in emitted events                                                    |
+| `withEvent`             | `(eventData: EventData, callback?: Function) => void`                               | Emits a structured event optionally after running a callback                                           |
+| `EventData`             | `type` (union of two objects)                                                       | Type definition for tracking click events or page visits (see below)                                   |
+| `useGlobalClickTracker` | `(socketUrl: string, projectName: string, empId?: string, roleId?: string) => void` | React hook to track global click events and emit them to the server via socket.                        |
+| `usePageTimeTracker`    | `(params: { Action: string; EmpId?: string; EmpRole?: string }) => void`            | React hook to track time spent on a page and emit an event on unmount if duration exceeds threshold.   |
+| `PageTimeTrackingData`  | `type`                                                                              | Type definition for the parameters accepted by `usePageTimeTracker`.                                   |
+| `socket`                | `ReturnType<typeof io>`                                                             | Socket.IO client instance used for real-time event communication.                                      |
+| `connectSocket`         | `(socketUrl: string, projectName: string) => void`                                  | Connects to the socket server, sets the project name, and attaches connection/disconnection listeners. |
 
 ### EventData
+
 | Property     | Type                                                              | Description                                                         |
 | ------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `ActionType` | `keyof typeof ActionType` \| `typeof PageVisitAction`             | Type of the action (either from `ActionType` or `PageVisitAction`). |
 | `Action`     | `string`                                                          | Specific action performed.                                          |
 | `EmpId`      | `string`                                                          | Unique identifier of the employee.                                  |
 | `EmpRole`    | `string`                                                          | Role of the employee performing the action.                         |
-| `Count`      | `number` *(only when `ActionType` is from `ActionType`)*          | Number of occurrences of the action.                                |
-| `Duration`   | `number` *(seconds, only when `ActionType` is `PageVisitAction`)* | Duration of the visit in seconds.                                   |
-
+| `Count`      | `number` _(only when `ActionType` is from `ActionType`)_          | Number of occurrences of the action.                                |
+| `Duration`   | `number` _(seconds, only when `ActionType` is `PageVisitAction`)_ | Duration of the visit in seconds.                                   |

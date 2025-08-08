@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { ActionType, EventData, PageVisitAction, withEvent } from "./event-bus";
-import { connectSocket, socket } from "./socket";
+import { connectSocket } from "./socket";
 
 /**
  * Hook to track global click events and emit them to the server
