@@ -190,3 +190,14 @@ const Login = () => {
 | `PageTimeTrackingData` | `type` | Type definition for the parameters accepted by `usePageTimeTracker`.|
 | `socket`        | `ReturnType<typeof io>`                                   | Socket.IO client instance used for real-time event communication.          |
 | `connectSocket` | `(socketUrl: string, projectName: string) => void`        | Connects to the socket server, sets the project name, and attaches connection/disconnection listeners. |
+
+### EventData
+| Property     | Type                                                              | Description                                                         |
+| ------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `ActionType` | `keyof typeof ActionType` \| `typeof PageVisitAction`             | Type of the action (either from `ActionType` or `PageVisitAction`). |
+| `Action`     | `string`                                                          | Specific action performed.                                          |
+| `EmpId`      | `string`                                                          | Unique identifier of the employee.                                  |
+| `EmpRole`    | `string`                                                          | Role of the employee performing the action.                         |
+| `Count`      | `number` *(only when `ActionType` is from `ActionType`)*          | Number of occurrences of the action.                                |
+| `Duration`   | `number` *(seconds, only when `ActionType` is `PageVisitAction`)* | Duration of the visit in seconds.                                   |
+
