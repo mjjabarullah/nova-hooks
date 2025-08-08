@@ -26,7 +26,7 @@ yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
 npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
 ```
 
-### Usage with useGlobalClickTracker hook
+### Usage with `useGlobalClickTracker` hook
 If you want to track the click event after login. use useGlobalClickTracker hook
 Click event tracking ensures we capture user interactions within authenticated areas, helping analyze feature usage and behavior.
 
@@ -62,10 +62,10 @@ add data-nova-track-id, data-nova-track-type attributes in UI elements to track 
   </span>
 </Button>
 ```
-### Usage with withEvent, connectSocket methods 
-Or Would like to track explicit click event or somewhere We need to use withEvent method
+### Usage with `withEvent` , `connectSocket` methods 
+Or Would like to track explicit click event or somewhere, We need to use withEvent method
 > [!IMPORTANT]
-> Ensure connectingSocket in react hook using connectSocket method.
+> Ensure socket connection established in react hook by using connectSocket method.
 
 ```tsx
 const Login = () => {
@@ -185,7 +185,7 @@ const Login = () => {
 | `setProjectName`  | `(name: string) => void`                              | Sets the global project name used in emitted events                  |
 | `withEvent`       | `(eventData: EventData, callback?: Function) => void` | Emits a structured event optionally after running a callback         |
 | `EventData`       | `type` (union of two objects)                         | Type definition for tracking click events or page visits (see below) |
-| `useGlobalClickTracker`| `(socketUrl: string, projectName: string, empId?: string, roleId?: string) => [Socket]` | React hook to track global click events and emit them to the server via socket. |
+| `useGlobalClickTracker`| `(socketUrl: string, projectName: string, empId?: string, roleId?: string) => void` | React hook to track global click events and emit them to the server via socket. |
 | `usePageTimeTracker`   | `(params: { Action: string; EmpId?: string; EmpRole?: string }) => void` | React hook to track time spent on a page and emit an event on unmount if duration exceeds threshold. |
 | `PageTimeTrackingData` | `type` | Type definition for the parameters accepted by `usePageTimeTracker`.|
 | `socket`        | `ReturnType<typeof io>`                                   | Socket.IO client instance used for real-time event communication.          |
