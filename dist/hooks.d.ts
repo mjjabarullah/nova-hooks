@@ -6,7 +6,7 @@ import { EventData } from './event-bus';
  * @param empId Optional employee ID for tracking
  * @param roleId Optional role ID for tracking
  */
-declare const useGlobalClickTracker: (socketUrl: string, projectName: string, empId?: string, roleId?: string) => import('socket.io-client').Socket<import('@socket.io/component-emitter').DefaultEventsMap, import('@socket.io/component-emitter').DefaultEventsMap>[];
+declare const useGlobalClickTracker: (socketUrl: string, projectName: string, empId?: string, roleId?: string) => void;
 export type PageTimeTrackingData = Pick<EventData, "Action"> & {
     EmpId?: EventData["EmpId"];
     EmpRole?: EventData["EmpRole"];

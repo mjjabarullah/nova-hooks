@@ -3746,7 +3746,6 @@ const useGlobalClickTracker = (socketUrl, projectName2, empId, roleId) => {
       document.removeEventListener("click", handler);
     };
   }, [empId, roleId]);
-  return [socket];
 };
 const DURATION_THRUSHOLD = 5;
 const usePageTimeTracker = ({
