@@ -1,0 +1,40 @@
+name: Build and Commit Dist
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # required so we can push back to same branch
+
+      # Step 2: Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4: Build project
+      - name: Build project
+        run: npm run build
+
+      # Step 5: Commit dist folder
+      - name: Commit dist folder
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "actions@github.com"
+          git add dist
+          git commit -m "chore: update dist [skip ci]" || echo "No changes to commit"
+          git push origin main
