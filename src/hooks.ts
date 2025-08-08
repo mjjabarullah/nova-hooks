@@ -46,8 +46,6 @@ const useGlobalClickTracker = (
       document.removeEventListener("click", handler);
     };
   }, [empId, roleId]);
-
-  return [socket];
 };
 
 const DURATION_THRUSHOLD = 5;
