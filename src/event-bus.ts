@@ -9,7 +9,7 @@ export const ActionType = {
 
 export const PageVisitAction = "Page Visit";
 
-export let projectName: string;
+let projectName: string;
 
 /**
  * Sets the project name to be included in the event data
@@ -54,9 +54,9 @@ eventBus.on(APP_EVENT, (eventData: EventData) => {
   if (!eventData) return;
 
   try {
-    if (!projectName) {
+    if (!projectName || projectName.trim()) {
       throw new Error(
-        "Project name is not set. Please set it using setProjectName function.",
+        "Project name was not set. Please set it using setProjectName function."
       );
     }
     Object.assign(eventData, {
