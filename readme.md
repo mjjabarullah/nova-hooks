@@ -19,11 +19,11 @@ A lightweight event tracking utility for capturing user interactions (such as bu
 ### 1. Install
 
 ```bash
-yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
+yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v1.0.2
 ```
 
 ```bash
-npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git
+npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v1.0.2
 ```
 
 ### Usage with `useGlobalClickTracker` hook
