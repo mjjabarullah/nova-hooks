@@ -3672,10 +3672,10 @@ Object.assign(lookup, {
   connect: lookup
 });
 exports.socket = void 0;
-const connectSocket = (socketUrl, projectName) => {
+const connectSocket = (socketUrl, projectName2) => {
   if (!exports.socket) {
     exports.socket = lookup(socketUrl);
-    setProjectName(projectName);
+    setProjectName(projectName2);
     exports.socket.on("connect", () => {
       console.log("Nova socket connected:", exports.socket.id);
     });
@@ -3690,9 +3690,9 @@ const ActionType = {
   Login: "Login"
 };
 const PageVisitAction = "Page Visit";
-exports.projectName = void 0;
+let projectName;
 const setProjectName = (name) => {
-  exports.projectName = name;
+  projectName = name;
 };
 const APP_EVENT = "APP_EVENT";
 const eventBus = new eventsExports.EventEmitter();
@@ -3700,13 +3700,13 @@ const NOVA_USER_ACTIVITY_EVENT = "nova-user-activity";
 eventBus.on(APP_EVENT, (eventData) => {
   if (!eventData) return;
   try {
-    if (!exports.projectName) {
+    if (!projectName || projectName.trim()) {
       throw new Error(
-        "Project name is not set. Please set it using setProjectName function."
+        "Project name was not set. Please set it using setProjectName function."
       );
     }
     Object.assign(eventData, {
-      Project: exports.projectName,
+      Project: projectName,
       CreatedDate: (/* @__PURE__ */ new Date()).toISOString().replace("T", " ").replace("Z", "")
     });
     exports.socket.emit(NOVA_USER_ACTIVITY_EVENT, eventData);
@@ -3720,9 +3720,9 @@ function withEvent(eventData, callback) {
   }
   eventBus.emit(APP_EVENT, eventData);
 }
-const useGlobalClickTracker = (socketUrl, projectName, empId, roleId) => {
+const useGlobalClickTracker = (socketUrl, projectName2, empId, roleId) => {
   react.useEffect(() => {
-    connectSocket(socketUrl, projectName);
+    connectSocket(socketUrl, projectName2);
   }, [socketUrl]);
   react.useEffect(() => {
     const handler = (e) => {
