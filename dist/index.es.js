@@ -3698,9 +3698,9 @@ const NOVA_USER_ACTIVITY_EVENT = "nova-user-activity";
 eventBus.on(APP_EVENT, (eventData) => {
   if (!eventData) return;
   try {
-    if (!projectName) {
+    if (!projectName || projectName.trim()) {
       throw new Error(
-        "Project name is not set. Please set it using setProjectName function."
+        "Project name was not set. Please set it using setProjectName function."
       );
     }
     Object.assign(eventData, {
@@ -3773,7 +3773,6 @@ export {
   ActionType,
   PageVisitAction,
   connectSocket,
-  projectName,
   setProjectName,
   socket,
   useGlobalClickTracker,

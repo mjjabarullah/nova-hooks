@@ -4,7 +4,6 @@ export declare const ActionType: {
     readonly Login: "Login";
 };
 export declare const PageVisitAction = "Page Visit";
-export declare let projectName: string;
 /**
  * Sets the project name to be included in the event data
  * @param name The name of the project
