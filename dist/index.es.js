@@ -3670,17 +3670,23 @@ Object.assign(lookup, {
   connect: lookup
 });
 let socket;
-const connectSocket = (socketUrl, projectName2) => {
-  if (!socket) {
-    socket = lookup(socketUrl);
-    setProjectName(projectName2);
-    socket.on("connect", () => {
-      console.log("Nova socket connected:", socket.id);
-    });
-    socket.on("disconnect", () => {
-      console.log("Nova socket disconnected");
-    });
+let projectName;
+const connectSocket = (socketUrl, project) => {
+  if (!socketUrl || socketUrl.trim() === "") {
+    throw new Error("Socket URL is required to connect.");
   }
+  if (!project || project.trim() === "") {
+    throw new Error("Project name is required to connect.");
+  }
+  if (socket) return;
+  socket = lookup(socketUrl);
+  projectName = project;
+  socket.on("connect", () => {
+    console.log("Nova socket connected");
+  });
+  socket.on("disconnect", () => {
+    console.log("Nova socket disconnected");
+  });
 };
 const ActionType = {
   Button: "Button",
@@ -3688,19 +3694,15 @@ const ActionType = {
   Login: "Login"
 };
 const PageVisitAction = "Page Visit";
-let projectName;
-const setProjectName = (name) => {
-  projectName = name;
-};
 const APP_EVENT = "APP_EVENT";
 const eventBus = new eventsExports.EventEmitter();
 const NOVA_USER_ACTIVITY_EVENT = "nova-user-activity";
 eventBus.on(APP_EVENT, (eventData) => {
   if (!eventData) return;
   try {
-    if (!projectName || projectName.toString().trim().length === 0) {
+    if (!socket) {
       throw new Error(
-        "Project name was not set. Please set it using setProjectName function."
+        "Nova socket is not initialized. Please call connectSocket first."
       );
     }
     Object.assign(eventData, {
@@ -3718,10 +3720,7 @@ function withEvent(eventData, callback) {
   }
   eventBus.emit(APP_EVENT, eventData);
 }
-const useGlobalClickTracker = (socketUrl, projectName2, empId, roleId) => {
-  useEffect(() => {
-    connectSocket(socketUrl, projectName2);
-  }, [socketUrl]);
+const useGlobalClickTracker = (empId, roleId) => {
   useEffect(() => {
     const handler = (e) => {
       let target = e.target;
@@ -3748,22 +3747,18 @@ const useGlobalClickTracker = (socketUrl, projectName2, empId, roleId) => {
   }, [empId, roleId]);
 };
 const DURATION_THRUSHOLD = 5;
-const usePageTimeTracker = ({
-  Action,
-  EmpId,
-  EmpRole
-}) => {
+const usePageTimeTracker = (action, empId, empRole) => {
   const startTimeRef = useRef(Date.now());
   useEffect(() => {
     return () => {
-      const Duration = Math.round((Date.now() - startTimeRef.current) / 1e3);
-      if (Duration > DURATION_THRUSHOLD && EmpId && EmpRole) {
+      const duration = Math.round((Date.now() - startTimeRef.current) / 1e3);
+      if (duration > DURATION_THRUSHOLD && empId && empRole) {
         withEvent({
-          Action,
-          EmpId,
-          EmpRole,
+          Action: action,
           ActionType: PageVisitAction,
-          Duration
+          EmpId: empId,
+          EmpRole: empRole,
+          Duration: duration
         });
       }
     };
@@ -3773,7 +3768,7 @@ export {
   ActionType,
   PageVisitAction,
   connectSocket,
-  setProjectName,
+  projectName,
   socket,
   useGlobalClickTracker,
   usePageTimeTracker,
