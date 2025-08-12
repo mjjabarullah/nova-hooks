@@ -8,7 +8,7 @@ export declare const PageVisitAction = "Page Visit";
  * Sets the project name to be included in the event data
  * @param name The name of the project
  */
-export declare const setProjectName: (name: string) => void;
+export declare const setProjectName: (name: string | number) => void;
 /**
  * Represents the structure of event data that can be emitted
  * Can be either a click event (Button/Menu) with a count

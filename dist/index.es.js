@@ -3698,7 +3698,7 @@ const NOVA_USER_ACTIVITY_EVENT = "nova-user-activity";
 eventBus.on(APP_EVENT, (eventData) => {
   if (!eventData) return;
   try {
-    if (!projectName || projectName.trim()) {
+    if (!projectName || projectName.toString().trim().length === 0) {
       throw new Error(
         "Project name was not set. Please set it using setProjectName function."
       );
