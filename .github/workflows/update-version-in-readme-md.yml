@@ -6,8 +6,7 @@ on:
     types: [published, edited]
   push:
     tags:
-      - "v*" # Runs when pushing a version tag
-  workflow_dispatch:
+      - "v*"
 
 jobs:
   update-readme:
@@ -24,7 +23,7 @@ jobs:
       - name: Update readme.md
         run: |
           search="nova-hooks.git#.*"
-          replace="nova-hooks.git#\`${{ steps.get_version.outputs.version }}\`"
+          replace="nova-hooks.git#${{ steps.get_version.outputs.version }}"
           sed -i "s|$search|$replace|" readme.md
 
       - name: Commit changes if any
