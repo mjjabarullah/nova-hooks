@@ -2,7 +2,7 @@ name: Update readme with Latest Release Version
 
 on:
   release:
-    types: [published]
+    types: [published, edited]
 
 jobs:
   update-readme:
