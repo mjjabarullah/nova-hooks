@@ -3672,17 +3672,23 @@ Object.assign(lookup, {
   connect: lookup
 });
 exports.socket = void 0;
-const connectSocket = (socketUrl, projectName2) => {
-  if (!exports.socket) {
-    exports.socket = lookup(socketUrl);
-    setProjectName(projectName2);
-    exports.socket.on("connect", () => {
-      console.log("Nova socket connected:", exports.socket.id);
-    });
-    exports.socket.on("disconnect", () => {
-      console.log("Nova socket disconnected");
-    });
+exports.projectName = void 0;
+const connectSocket = (socketUrl, project) => {
+  if (!socketUrl || socketUrl.trim() === "") {
+    throw new Error("Socket URL is required to connect.");
   }
+  if (!project || project.trim() === "") {
+    throw new Error("Project name is required to connect.");
+  }
+  if (exports.socket) return;
+  exports.socket = lookup(socketUrl);
+  exports.projectName = project;
+  exports.socket.on("connect", () => {
+    console.log("Nova socket connected");
+  });
+  exports.socket.on("disconnect", () => {
+    console.log("Nova socket disconnected");
+  });
 };
 const ActionType = {
   Button: "Button",
@@ -3690,23 +3696,19 @@ const ActionType = {
   Login: "Login"
 };
 const PageVisitAction = "Page Visit";
-let projectName;
-const setProjectName = (name) => {
-  projectName = name;
-};
 const APP_EVENT = "APP_EVENT";
 const eventBus = new eventsExports.EventEmitter();
 const NOVA_USER_ACTIVITY_EVENT = "nova-user-activity";
 eventBus.on(APP_EVENT, (eventData) => {
   if (!eventData) return;
   try {
-    if (!projectName || projectName.toString().trim().length === 0) {
+    if (!exports.socket) {
       throw new Error(
-        "Project name was not set. Please set it using setProjectName function."
+        "Nova socket is not initialized. Please call connectSocket first."
       );
     }
     Object.assign(eventData, {
-      Project: projectName,
+      Project: exports.projectName,
       CreatedDate: (/* @__PURE__ */ new Date()).toISOString().replace("T", " ").replace("Z", "")
     });
     exports.socket.emit(NOVA_USER_ACTIVITY_EVENT, eventData);
@@ -3720,10 +3722,7 @@ function withEvent(eventData, callback) {
   }
   eventBus.emit(APP_EVENT, eventData);
 }
-const useGlobalClickTracker = (socketUrl, projectName2, empId, roleId) => {
-  react.useEffect(() => {
-    connectSocket(socketUrl, projectName2);
-  }, [socketUrl]);
+const useGlobalClickTracker = (empId, roleId) => {
   react.useEffect(() => {
     const handler = (e) => {
       let target = e.target;
@@ -3750,22 +3749,18 @@ const useGlobalClickTracker = (socketUrl, projectName2, empId, roleId) => {
   }, [empId, roleId]);
 };
 const DURATION_THRUSHOLD = 5;
-const usePageTimeTracker = ({
-  Action,
-  EmpId,
-  EmpRole
-}) => {
+const usePageTimeTracker = (action, empId, empRole) => {
   const startTimeRef = react.useRef(Date.now());
   react.useEffect(() => {
     return () => {
-      const Duration = Math.round((Date.now() - startTimeRef.current) / 1e3);
-      if (Duration > DURATION_THRUSHOLD && EmpId && EmpRole) {
+      const duration = Math.round((Date.now() - startTimeRef.current) / 1e3);
+      if (duration > DURATION_THRUSHOLD && empId && empRole) {
         withEvent({
-          Action,
-          EmpId,
-          EmpRole,
+          Action: action,
           ActionType: PageVisitAction,
-          Duration
+          EmpId: empId,
+          EmpRole: empRole,
+          Duration: duration
         });
       }
     };
@@ -3774,7 +3769,6 @@ const usePageTimeTracker = ({
 exports.ActionType = ActionType;
 exports.PageVisitAction = PageVisitAction;
 exports.connectSocket = connectSocket;
-exports.setProjectName = setProjectName;
 exports.useGlobalClickTracker = useGlobalClickTracker;
 exports.usePageTimeTracker = usePageTimeTracker;
 exports.withEvent = withEvent;
