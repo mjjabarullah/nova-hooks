@@ -32,6 +32,8 @@ npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v0.0.0
 > Ensure socket connection established in react hook by using connectSocket method.
 
 ```tsx
+import { connectSocket } from "nova-hooks";
+
 const App = () => {
   useEffect(() => {
     connectSocket(import.meta.env.VITE_APP_SOCKET, "WolfPack");
@@ -43,8 +45,7 @@ const App = () => {
 
 ### with `useGlobalClickTracker` hook
 
-If you want to track the click event after login. use useGlobalClickTracker hook
-Click event tracking ensures we capture user interactions within authenticated areas, helping analyze feature usage and behavior.
+If you want to track the click event in authenticated area use `useGlobalClickTracker`. this hook tracking click event and sends to connected socket.
 
 ```tsx
 import { useGlobalClickTracker } from "nova-hooks";
@@ -58,29 +59,26 @@ const Protected = ({ children }: PropsWithChildren) => {
 };
 ```
 
-add data-nova-track-id, data-nova-track-type attributes in UI elements to track click event internally.
+> [!IMPORTANT]
+> Ensure all the clickable ui has `data-nova-track-id`, `data-nova-track-type` attributes to track click event internally.
 
 ```tsx
 <Button
   data-nova-track-id="New Task"
   data-nova-track-type={ActionType["Button"]}
-  size="sm"
-  className="bg-primary hover:bg-primary_hover flex h-8 w-full items-center justify-center gap-2 sm:h-7 sm:w-auto"
-  onClick={() => setOpen(true)}
 >
-  <BadgePlusIcon className="h-4 w-auto" />
-  <span>
-    <span className="md:hidden">New</span> Task
-  </span>
+  Track Me
 </Button>
 ```
 
 ### with `withEvent` methods
 
-Or would like to track explicit click event or somewhere, We need to use withEvent method
+Or would like to track explicit click event or somewhere in api call, We must use `withEvent` method
 
 ```tsx
-const Login = () => {
+import { withEvent } from "nova-hooks";
+
+export const Login = () => {
   const [_, setToken] = useSessionStorage<string | undefined>(
     Auth.SESSION,
     undefined
