@@ -3,6 +3,10 @@ name: Update readme with Latest Release Version
 on:
   release:
     types: [published, edited]
+  push:
+    tags:
+      - 'v*' # Runs when pushing a version tag
+  workflow_dispatch:
 
 jobs:
   update-readme:
