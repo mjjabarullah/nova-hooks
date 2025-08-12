@@ -19,11 +19,11 @@ A lightweight event tracking utility for capturing user interactions (such as bu
 ### 1. Install
 
 ```bash
-yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#`refs/heads/main`
+yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v1.0.7
 ```
 
 ```bash
-npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#`refs/heads/main`
+npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v1.0.7
 ```
 
 ### Usage
