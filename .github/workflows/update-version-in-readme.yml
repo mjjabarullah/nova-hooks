@@ -13,9 +13,9 @@ jobs:
         id: get_version
         run: |
           echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      - name: Update README.md
+      - name: Update readme.md
         run: |
-          sed -i "s/^nova-hooks.git#.*$/nova-hooks.git#\`${{ steps.get_version.outputs.version }}\`/" README.md
+          sed -i "s/^nova-hooks.git#.*$/nova-hooks.git#\`${{ steps.get_version.outputs.version }}\`/" readme.md
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
