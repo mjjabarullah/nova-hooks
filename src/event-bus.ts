@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { socket } from "./socket";
+import { projectName as Project, socket } from "./socket";
 
 export const ActionType = {
   Button: "Button",
@@ -8,16 +8,6 @@ export const ActionType = {
 } as const;
 
 export const PageVisitAction = "Page Visit";
-
-let projectName: string | number;
-
-/**
- * Sets the project name to be included in the event data
- * @param name The name of the project
- */
-export const setProjectName = (name: string | number) => {
-  projectName = name;
-};
 
 /**
  * Represents the structure of event data that can be emitted
@@ -41,7 +31,6 @@ export type EventData =
     };
 
 const APP_EVENT = "APP_EVENT";
-
 const eventBus = new EventEmitter();
 const NOVA_USER_ACTIVITY_EVENT = "nova-user-activity";
 
@@ -54,13 +43,13 @@ eventBus.on(APP_EVENT, (eventData: EventData) => {
   if (!eventData) return;
 
   try {
-    if (!projectName || projectName.toString().trim().length === 0) {
+    if (!socket) {
       throw new Error(
-        "Project name was not set. Please set it using setProjectName function."
+        "Nova socket is not initialized. Please call connectSocket first."
       );
     }
     Object.assign(eventData, {
-      Project: projectName,
+      Project,
       CreatedDate: new Date().toISOString().replace("T", " ").replace("Z", ""),
     });
 

@@ -1,25 +1,14 @@
 import { useEffect, useRef } from "react";
 
 import { ActionType, EventData, PageVisitAction, withEvent } from "./event-bus";
-import { connectSocket } from "./socket";
 
 /**
  * Hook to track global click events and emit them to the server
  * Listens for click events on the document and emits them with the provided socket URL
- * @param socketUrl The URL of the socket server to connect to
  * @param empId Optional employee ID for tracking
  * @param roleId Optional role ID for tracking
  */
-const useGlobalClickTracker = (
-  socketUrl: string,
-  projectName: string,
-  empId?: string,
-  roleId?: string
-) => {
-  useEffect(() => {
-    connectSocket(socketUrl, projectName);
-  }, [socketUrl]);
-
+const useGlobalClickTracker = (empId?: string, roleId?: string) => {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       let target = e.target as HTMLElement | null;
@@ -50,35 +39,30 @@ const useGlobalClickTracker = (
 
 const DURATION_THRUSHOLD = 5;
 
-export type PageTimeTrackingData = Pick<EventData, "Action"> & {
-  EmpId?: EventData["EmpId"];
-  EmpRole?: EventData["EmpRole"];
-};
-
 /**
- * Hook to track time spent on a page and emit an event when the user leaves
- * @param {Object} params - The tracking parameters
- * @param {string} params.Action - The page/action being tracked
- * @param {string} params.EmpId - Employee ID of the current user
- * @param {string} params.EmpRole - Role of the current user
+ * Hook to track page visit duration and emit it to the server
+ * Emits an event when the component unmounts with the duration of the page visit
+ * @param action The action name for the page visit
+ * @param empId Optional employee ID for tracking
+ * @param empRole Optional employee role for tracking
  */
-const usePageTimeTracker = ({
-  Action,
-  EmpId,
-  EmpRole,
-}: PageTimeTrackingData) => {
+const usePageTimeTracker = (
+  action: EventData["Action"],
+  empId?: EventData["EmpId"],
+  empRole?: EventData["EmpRole"]
+) => {
   const startTimeRef = useRef(Date.now());
 
   useEffect(() => {
     return () => {
-      const Duration = Math.round((Date.now() - startTimeRef.current) / 1000);
-      if (Duration > DURATION_THRUSHOLD && EmpId && EmpRole) {
+      const duration = Math.round((Date.now() - startTimeRef.current) / 1000);
+      if (duration > DURATION_THRUSHOLD && empId && empRole) {
         withEvent({
-          Action,
-          EmpId,
-          EmpRole,
+          Action: action,
           ActionType: PageVisitAction,
-          Duration,
+          EmpId: empId,
+          EmpRole: empRole,
+          Duration: duration,
         });
       }
     };
