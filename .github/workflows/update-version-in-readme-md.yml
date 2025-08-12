@@ -1,5 +1,6 @@
 name: Update README with Latest Release Version
-
+permissions:
+  contents: write
 on:
   release:
     types: [published, edited]
