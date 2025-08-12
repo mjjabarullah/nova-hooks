@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed so we have branch history
+          ref: main # Change to your default branch (e.g., master)
 
       - name: Capture release version
         id: get_version
@@ -35,4 +38,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -am "chore: update version in README to ${{ steps.get_version.outputs.version }}"
-          git push
+          git push origin main
