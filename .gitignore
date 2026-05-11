@@ -172,3 +172,6 @@ out
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Compiled output
+dist
