@@ -1,16 +1,17 @@
 # nova-hooks
 
-A lightweight event tracking utility for capturing user interactions (such as button clicks and page visits) in React applications. Built with `EventEmitter` and `socket.io-client`.
+A highly-optimized, **zero-configuration** event tracking utility for capturing user interactions and page visits in React applications. Built with a custom, lightweight `EventBus` and `socket.io-client`.
 
 ---
 
 ## ✨ Features
 
-- Emits structured user activity events
-- Supports click and page visit tracking
-- Timestamp and project metadata included
-- Easily extendable and customizable
-- No external analytics service required
+- **Zero-Config Tracking:** Automatically captures clicks on buttons, links, and interactive elements without needing manual attributes!
+- **True Page Dwell Time:** Uses the native Page Visibility API to calculate the *actual* active time spent on a page (pauses when the user switches tabs).
+- **Network Optimized:** Employs a built-in 1-second debouncing and click-batching mechanism to minimize network overhead.
+- **Ultra-Lightweight:** Zero dependencies (other than `socket.io-client`). Fully framework-agnostic core logic.
+- **Auto-Enriched Context:** Automatically attaches `PageUrl`, `PageTitle`, `Project`, and `CreatedDate` to every single event payload.
+- **SSR Safe:** Fully compatible with Next.js and Remix.
 
 ---
 
@@ -26,182 +27,115 @@ yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v2.0.0
 npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v2.0.0
 ```
 
-### Usage
+### 2. Initialization
 
 > [!IMPORTANT]
-> Ensure socket connection established in react hook by using connectSocket method.
+> Ensure the socket connection is established at the root of your application using the `connectSocket` method.
 
 ```tsx
 import { connectSocket } from "nova-hooks";
+import { useEffect } from "react";
 
 const App = () => {
   useEffect(() => {
     connectSocket(import.meta.env.VITE_APP_SOCKET, "WolfPack");
   }, []);
 
-  // app codes....
+  // app code...
 };
 ```
 
-### with `useGlobalClickTracker` hook
+---
 
-If you want to track the click event in authenticated area use `useGlobalClickTracker`. this hook tracking click event and sends to connected socket.
+## 🛠️ Usage Examples
+
+### 1. Zero-Config Global Click Tracking
+Place `useGlobalClickTracker` in your authenticated layout. It will automatically listen to the DOM and seamlessly track clicks on any `<button>`, `<a>`, or `cursor: pointer` element!
 
 ```tsx
 import { useGlobalClickTracker } from "nova-hooks";
 
-const Protected = ({ children }: PropsWithChildren) => {
-  const { isAuthenticated, user } = useAuth();
-  // this hook tracks all the UI click
+const ProtectedLayout = ({ children }) => {
+  const { user } = useAuth();
+  
+  // Magic happens here! Tracks all UI clicks across the entire app.
   useGlobalClickTracker(user?.empId, user?.roleId);
 
-  return isAuthenticated ? children : <Navigate to={RouteName.LOGIN} />;
+  return <>{children}</>;
 };
 ```
+*Note: It will intelligently extract labels from `innerText`, `title`, `aria-label`, or auto-generate a fallback CSS Path!*
 
-> [!IMPORTANT]
-> Ensure all the clickable ui has `data-nova-track-id`, `data-nova-track-type` attributes to track click event internally.
+### 2. Explicit Tracking (Optional Overrides)
+If you want to override the auto-detected name for a specific button, just attach the `data-nova-*` attributes:
 
 ```tsx
-<Button
-  data-nova-track-id="New Task"
-  data-nova-track-type={ActionType["Button"]}
+<button
+  data-nova-track-id="Custom Task Action"
+  data-nova-track-type={ActionType.Button}
 >
-  Track Me
-</Button>
+  Track Me Specifically
+</button>
 ```
 
-### with `withEvent` methods
-
-Or would like to track explicit click event or somewhere in api call, We must use `withEvent` method
+### 3. Accurate Page Dwell Time
+Track exactly how long a user actively stares at a specific page/component. The timer pauses if they switch tabs or minimize the browser!
 
 ```tsx
-import { withEvent } from "nova-hooks";
+import { usePageTimeTracker } from "nova-hooks";
 
-export const Login = () => {
-  const [_, setToken] = useSessionStorage<string | undefined>(
-    Auth.SESSION,
-    undefined
-  );
+export const Dashboard = () => {
+  const { user } = useAuth();
 
-  const { mutate: doLogin, isPending } = useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      setToken(data.token);
-      toast.success("Logged in successfully");
-    },
-    onError: (e) => {
-      toast.error("Invalid username or password");
-    },
-  });
+  // Tracks active dwell time and emits it automatically when the user leaves the page
+  usePageTimeTracker("Home Dashboard", user?.empId, user?.roleId);
 
-  const form = useForm<Login>({
-    defaultValues: {
-      employeeId: "",
-      password: "",
-    },
-    resolver: zodResolver(LoginSchema),
-    mode: "onSubmit",
-    reValidateMode: "onChange",
-  });
-
-  const onSubmit = (data: Login) =>
-    doLogin({ ...data, employeeId: data.employeeId.toUpperCase() });
-
-  return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex w-full flex-col items-center justify-center gap-4 text-sm"
-      >
-        <FormField
-          control={form.control}
-          name="employeeId"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel className="text-black">Username</FormLabel>
-              <FormControl>
-                <div className="relative flex items-center">
-                  <Input
-                    {...field}
-                    disabled={isPending}
-                    className="h-11 outline-hidden focus-visible:ring-[0.7px]"
-                    type="text"
-                    placeholder="Enter Username"
-                    maxLength={10}
-                  />
-                </div>
-              </FormControl>
-              <FormMessage className="ml-1 text-[12px] text-red-500" />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel className="text-black">Password</FormLabel>
-              <FormControl>
-                <div className="relative flex items-center">
-                  <PasswordInput
-                    {...field}
-                    disabled={isPending}
-                    className="h-11 outline-hidden focus-visible:ring-[0.7px]"
-                    placeholder="Enter Password"
-                  />
-                </div>
-              </FormControl>
-              <FormMessage className="ml-1 text-[12px] text-red-500" />
-            </FormItem>
-          )}
-        />
-        <Button
-          size="sm"
-          disabled={isPending}
-          className="bg-primary mt-2 h-10 w-full cursor-pointer rounded-xl px-4"
-          onClick={() =>
-            // this function send an event to event tracker
-            withEvent({
-              Action: "Login",
-              ActionType: ActionType.Login,
-              EmpId: form.getValues("employeeId"),
-              EmpRole: "",
-              Count: 1,
-            })
-          }
-        >
-          {isPending && <Loader className="size-4" />}
-          Login
-        </Button>
-      </form>
-    </Form>
-  );
+  return <div>Welcome to the Dashboard</div>;
 };
 ```
 
-## 📦 Exports
+### 4. Manual / Imperative Tracking
+If you need to track events programmatically (like inside an API success callback), use the `withEvent` method:
+
+```tsx
+import { withEvent, ActionType } from "nova-hooks";
+
+const doLogin = () => {
+  api.login()
+    .then(() => {
+      withEvent({
+        Action: "Login Success",
+        ActionType: ActionType.Login,
+        EmpId: "EMP-123",
+        EmpRole: "Admin",
+        Count: 1,
+      });
+    });
+};
+```
+
+---
+
+## 📦 Exports & Types
 
 | Name                    | Type                                                         | Description                                                                                            |
 | ----------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `ActionType`            | `object`                                                     | Predefined enum-like values: `"Button"`, `"Menu"`, `"Login"`                                           |
+| `ActionType`            | `object`                                                     | Predefined enum-like values: `"Button"`, `"Menu"`, `"Login"`, `"Link"`                                 |
 | `PageVisitAction`       | `string`                                                     | Constant string `"Page Visit"` used for tracking page visits                                           |
-| `setProjectName`        | `(name: string) => void`                                     | Sets the global project name used in emitted events                                                    |
-| `withEvent`             | `(eventData: EventData, callback?: Function) => void`        | Emits a structured event optionally after running a callback                                           |
-| `EventData`             | `type` (union of two objects)                                | Type definition for tracking click events or page visits (see below)                                   |
-| `useGlobalClickTracker` | `(empId?: string, roleId?: string) => void`                  | React hook to track global click events and emit them to the server via socket.                        |
-| `usePageTimeTracker`    | `(action: string; empId?: string; empRole?: string) => void` | React hook to track time spent on a page and emit an event on unmount if duration exceeds threshold.   |
-| `PageTimeTrackingData`  | `type`                                                       | Type definition for the parameters accepted by `usePageTimeTracker`.                                   |
-| `socket`                | `ReturnType<typeof io>`                                      | Socket.IO client instance used for real-time event communication.                                      |
-| `connectSocket`         | `(socketUrl: string, project: string) => void`               | Connects to the socket server, sets the project name, and attaches connection/disconnection listeners. |
+| `connectSocket`         | `(socketUrl: string, project: string) => void`               | Connects to the socket server and sets the project name.                                               |
+| `disconnectSocket`      | `() => void`                                                 | Disconnects and cleans up the active socket connection.                                                |
+| `withEvent`             | `(eventData: EventData, callback?: Function) => void`        | Emits a structured event optionally after running a callback.                                          |
+| `useGlobalClickTracker` | `(empId?: string, roleId?: string) => void`                  | React hook to automatically track global click events.                                                 |
+| `usePageTimeTracker`    | `(action: string; empId?: string; empRole?: string) => void` | React hook to track active time spent on a page via the Visibility API.                                |
 
-### EventData
+### EventData Structure
+All events are automatically enriched with `Project`, `PageUrl`, `PageTitle`, and an ISO `CreatedDate`.
 
 | Property     | Type                                                              | Description                                                         |
 | ------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `ActionType` | `keyof typeof ActionType` \| `typeof PageVisitAction`             | Type of the action (either from `ActionType` or `PageVisitAction`). |
-| `Action`     | `string`                                                          | Specific action performed.                                          |
+| `ActionType` | `keyof typeof ActionType` \| `typeof PageVisitAction`             | Type of the action.                                                 |
+| `Action`     | `string`                                                          | Specific action performed (extracted from DOM or manually set).     |
 | `EmpId`      | `string`                                                          | Unique identifier of the employee.                                  |
 | `EmpRole`    | `string`                                                          | Role of the employee performing the action.                         |
-| `Count`      | `number` _(only when `ActionType` is from `ActionType`)_          | Number of occurrences of the action.                                |
-| `Duration`   | `number` _(seconds, only when `ActionType` is `PageVisitAction`)_ | Duration of the visit in seconds.                                   |
+| `Count`      | `number` _(only when `ActionType` is from `ActionType`)_          | Number of rapid occurrences of the action (batched).                |
+| `Duration`   | `number` _(seconds, only when `ActionType` is `PageVisitAction`)_ | Duration of the *active* visit in seconds.                          |
