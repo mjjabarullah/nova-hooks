@@ -20,11 +20,11 @@ A highly-optimized, **zero-configuration** event tracking utility for capturing 
 ### 1. Install
 
 ```bash
-yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v2.0.0
+yarn add nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v2.0.1
 ```
 
 ```bash
-npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v2.0.0
+npm i nova-hooks@https://github.com/mjjabarullah/nova-hooks.git#v2.0.1
 ```
 
 ### 2. Initialization
