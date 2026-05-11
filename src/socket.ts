@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-export let socket: ReturnType<typeof io>;
+export let socket: ReturnType<typeof io> | undefined;
 
 export let projectName: string | number;
 
@@ -29,4 +29,14 @@ export const connectSocket = (socketUrl: string, project: string) => {
   socket.on("disconnect", () => {
     console.log("Nova socket disconnected");
   });
+};
+
+/**
+ * Disconnects the socket server and cleans up the instance
+ */
+export const disconnectSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = undefined;
+  }
 };

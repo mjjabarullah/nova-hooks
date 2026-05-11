@@ -29,6 +29,12 @@ jobs:
           replace="nova-hooks.git#${{ steps.get_version.outputs.version }}"
           sed -i "s|$search|$replace|" readme.md
 
+      - name: Update package.json version
+        run: |
+          # Strip the 'v' prefix if it exists (e.g. 'v1.0.7' -> '1.0.7')
+          clean_version=$(echo "${{ steps.get_version.outputs.version }}" | sed 's/^v//')
+          npm --no-git-tag-version version $clean_version
+
       - name: Commit changes if any
         run: |
           if git diff --quiet; then
@@ -37,5 +43,5 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -am "chore: update version in README to ${{ steps.get_version.outputs.version }}"
+          git commit -am "chore: bump version in README and package.json to ${{ steps.get_version.outputs.version }}"
           git push origin main
