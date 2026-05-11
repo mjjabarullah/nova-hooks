@@ -33,7 +33,7 @@ jobs:
         run: |
           # Strip the 'v' prefix if it exists (e.g. 'v1.0.7' -> '1.0.7')
           clean_version=$(echo "${{ steps.get_version.outputs.version }}" | sed 's/^v//')
-          npm --no-git-tag-version version $clean_version
+          npm --no-git-tag-version --allow-same-version version $clean_version
 
       - name: Commit changes if any
         run: |
