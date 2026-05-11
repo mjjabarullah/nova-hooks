@@ -1,5 +1,10 @@
 # nova-hooks
 
+[![npm version](https://img.shields.io/npm/v/nova-hooks.svg?style=flat-square)](https://www.npmjs.com/package/nova-hooks)
+[![npm downloads](https://img.shields.io/npm/dm/nova-hooks.svg?style=flat-square)](https://www.npmjs.com/package/nova-hooks)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Socket Badge](https://badge.socket.dev/npm/package/nova-hooks/2.0.7)](https://badge.socket.dev/npm/package/nova-hooks/2.0.7)
+
 A highly-optimized, **zero-configuration** event tracking utility for capturing user interactions and page visits in React applications. Built with a custom, lightweight `EventBus` and `socket.io-client`.
 
 ---
