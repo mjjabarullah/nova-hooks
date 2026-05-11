@@ -1,31 +1,42 @@
 import { useEffect, useRef } from "react";
-
 import { ActionType, EventData, PageVisitAction, withEvent } from "./event-bus";
 
-// Helper to generate a CSS path for elements without clear text
+/**
+ * Helper utility to generate a unique CSS selector path for an HTML element.
+ * Used as a fallback identifier when a clicked element lacks semantic text or explicit tracking IDs.
+ * @param el The HTML element to generate a path for
+ * @returns A string representing the CSS selector path (e.g., 'div.container > button#submit')
+ */
 const getCssPath = (el: HTMLElement): string => {
   const path = [];
   let current: HTMLElement | null = el;
-  while (current && current.nodeType === Node.ELEMENT_NODE && current !== document.body) {
+  while (
+    current &&
+    current.nodeType === Node.ELEMENT_NODE &&
+    current !== document.body
+  ) {
     let selector = current.tagName.toLowerCase();
     if (current.id) {
       selector += `#${current.id}`;
       path.unshift(selector);
       break; // IDs are unique enough
-    } else if (current.className && typeof current.className === 'string') {
-      selector += `.${current.className.trim().split(/\s+/).join('.')}`;
+    } else if (current.className && typeof current.className === "string") {
+      selector += `.${current.className.trim().split(/\s+/).join(".")}`;
     }
     path.unshift(selector);
     current = current.parentElement;
   }
-  return path.join(' > ');
+  return path.join(" > ");
 };
 
 /**
- * Hook to track global click events and emit them to the server
- * Listens for click events on the document and automatically captures button/link clicks
- * @param empId Optional employee ID for tracking
- * @param roleId Optional role ID for tracking
+ * React hook to track global click events and automatically emit them to the server.
+ * Attaches a single event listener to the document (event delegation) to capture clicks.
+ * It intelligently identifies interactive elements (buttons, links, pointer cursors) and
+ * extracts their labels or generates a CSS path fallback if no label is found.
+ * 
+ * @param empId Optional employee ID for tracking identity
+ * @param roleId Optional role ID for tracking authorization/role
  */
 const useGlobalClickTracker = (empId?: string, roleId?: string) => {
   useEffect(() => {
@@ -43,7 +54,7 @@ const useGlobalClickTracker = (empId?: string, roleId?: string) => {
         if (!trackId) {
           const tagName = target.tagName.toLowerCase();
           const role = target.getAttribute("role");
-          
+
           // Check for semantic buttons/links
           const isButton =
             tagName === "button" ||
@@ -52,18 +63,24 @@ const useGlobalClickTracker = (empId?: string, roleId?: string) => {
               ((target as HTMLInputElement).type === "submit" ||
                 (target as HTMLInputElement).type === "button"));
           const isLink = tagName === "a";
-          
+
           // Check for non-semantic clickable divs/spans
-          const isInteractiveRole = role === "menuitem" || role === "tab" || role === "option";
-          const isClickableDiv = window.getComputedStyle(target).cursor === "pointer";
+          const isInteractiveRole =
+            role === "menuitem" || role === "tab" || role === "option";
+          const isClickableDiv =
+            window.getComputedStyle(target).cursor === "pointer";
 
           if (isButton || isLink || isInteractiveRole || isClickableDiv) {
             // 1. Try to get text content or aria-label
-            const textContent = target.innerText?.trim() || target.getAttribute("aria-label")?.trim() || target.title?.trim() || target.getAttribute("name")?.trim();
-            
+            const textContent =
+              target.innerText?.trim() ||
+              target.getAttribute("aria-label")?.trim() ||
+              target.title?.trim() ||
+              target.getAttribute("name")?.trim();
+
             // 2. If no text is available (e.g. icon-only div), generate a CSS path
             trackId = textContent || `[UI Path] ${getCssPath(target)}`;
-            
+
             actionType = isLink ? "Link" : isButton ? "Button" : "Menu";
 
             if (trackId.length > 80) {
@@ -93,14 +110,20 @@ const useGlobalClickTracker = (empId?: string, roleId?: string) => {
   }, [empId, roleId]);
 };
 
+/** 
+ * Minimum active dwell time (in seconds) required before a page visit event is considered valid and emitted.
+ */
 const DURATION_THRESHOLD = 5;
 
 /**
- * Hook to track accurate active page visit duration
- * Uses Page Visibility API to only count time when the tab is actively visible
- * @param action The action name for the page visit
- * @param empId Optional employee ID for tracking
- * @param empRole Optional employee role for tracking
+ * React hook to track accurate active page visit duration.
+ * Utilizes the native Page Visibility API to pause the timer when the user switches tabs
+ * or minimizes the browser, ensuring only actual active dwell time is recorded.
+ * Emits the payload automatically when the component unmounts.
+ * 
+ * @param action The specific action name or page identifier for the visit
+ * @param empId Optional employee ID for tracking identity
+ * @param empRole Optional employee role for tracking authorization/role
  */
 const usePageTimeTracker = (
   action: EventData["Action"],

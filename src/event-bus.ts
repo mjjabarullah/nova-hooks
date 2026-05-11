@@ -2,21 +2,39 @@ import { projectName as Project, socket } from "./socket";
 
 // Lightweight custom event emitter to avoid 'events' package dependency
 type Listener = (data: any) => void;
+/**
+ * A lightweight custom event emitter implementation.
+ * Created to avoid bundling the bulky Node.js 'events' package.
+ */
 class SimpleEventEmitter {
   private listeners: Record<string, Listener[]> = {};
-  
+
+  /**
+   * Registers a listener callback for a specific event.
+   * @param event The name of the event to listen for
+   * @param callback The function to execute when the event is emitted
+   */
   on(event: string, callback: Listener) {
     if (!this.listeners[event]) this.listeners[event] = [];
     this.listeners[event].push(callback);
   }
-  
+
+  /**
+   * Emits an event, triggering all registered listeners synchronously.
+   * @param event The name of the event to emit
+   * @param data The payload to pass to the listener callbacks
+   */
   emit(event: string, data: any) {
     if (this.listeners[event]) {
-      this.listeners[event].forEach(cb => cb(data));
+      this.listeners[event].forEach((cb) => cb(data));
     }
   }
 }
 
+/**
+ * Predefined set of UI element types that can be tracked.
+ * Used to categorize standard user click interactions.
+ */
 export const ActionType = {
   Button: "Button",
   Menu: "Menu",
@@ -24,6 +42,9 @@ export const ActionType = {
   Link: "Link",
 } as const;
 
+/**
+ * Constant identifier representing a page dwell time tracking event.
+ */
 export const PageVisitAction = "Page Visit";
 
 /**
@@ -47,6 +68,10 @@ export type EventData =
       Duration: number; // in seconds
     };
 
+/**
+ * Represents the final structure of an event payload just before it is sent to the server.
+ * Extends the base EventData with context-aware metadata like URL, Project, and Timestamp.
+ */
 type EnrichedEventData = EventData & {
   Project: string | number;
   CreatedDate: string;
@@ -54,11 +79,16 @@ type EnrichedEventData = EventData & {
   PageTitle: string;
 };
 
+/** Internal event identifier used for routing payloads within the EventBus */
 const APP_EVENT = "APP_EVENT";
+/** The singleton instance of the event bus */
 const eventBus = new SimpleEventEmitter();
+/** The socket event name used when streaming data to the backend */
 const NOVA_USER_ACTIVITY_EVENT = "nova-user-activity";
 
+/** Map storing aggregated, debounced click events keyed by their unique signature */
 const pendingClicks = new Map<string, EnrichedEventData>();
+/** Reference to the active batching debounce timer */
 let batchTimer: ReturnType<typeof setTimeout> | null = null;
 
 /**
@@ -70,12 +100,16 @@ eventBus.on(APP_EVENT, (eventData: EventData) => {
 
   try {
     if (!socket) {
-      console.warn("Nova socket is not initialized. Please call connectSocket first.");
+      console.warn(
+        "Nova socket is not initialized. Please call connectSocket first.",
+      );
       return;
     }
 
-    const pageUrl = typeof window !== "undefined" ? window.location.pathname : "Unknown";
-    const pageTitle = typeof document !== "undefined" ? document.title : "Unknown";
+    const pageUrl =
+      typeof window !== "undefined" ? window.location.pathname : "Unknown";
+    const pageTitle =
+      typeof document !== "undefined" ? document.title : "Unknown";
 
     const enrichedEvent = {
       ...eventData,
@@ -90,8 +124,8 @@ eventBus.on(APP_EVENT, (eventData: EventData) => {
       const key = `${enrichedEvent.ActionType}-${enrichedEvent.Action}-${enrichedEvent.PageUrl}`;
       if (pendingClicks.has(key)) {
         const existing = pendingClicks.get(key)!;
-        if ('Count' in existing && 'Count' in enrichedEvent) {
-          existing.Count += (enrichedEvent.Count || 1);
+        if ("Count" in existing && "Count" in enrichedEvent) {
+          existing.Count += enrichedEvent.Count || 1;
         }
         existing.CreatedDate = enrichedEvent.CreatedDate;
       } else {
