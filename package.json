@@ -1,6 +1,6 @@
 {
   "name": "nova-hooks",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Nova hooks package",
   "keywords": [
     "nova",
