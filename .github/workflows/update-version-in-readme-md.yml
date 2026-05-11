@@ -44,4 +44,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -am "chore: bump version in README and package.json to ${{ steps.get_version.outputs.version }}"
+          git pull --rebase origin main
           git push origin main
